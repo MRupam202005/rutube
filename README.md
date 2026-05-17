@@ -1,0 +1,2 @@
+# Backend with Node.js and Express
+This project is a backend application built using Node.js and Express. It provides a RESTful API for managing resources such as users, videos, or any other entities you may need.
