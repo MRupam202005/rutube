@@ -23,4 +23,11 @@ app.use(express.static("public"));
 // configuring express to accept cookies in requests
 app.use(cookieParser());
 
+
+
+// routes import
+import userRouter from "./routes/user.routes.js";   // as in user.router.js it is "export default" so whatever name you want to chose you can do
+
+// routes declaration
+app.use("/api/v1/users",userRouter);   // app.use because it is modular, 
 export {app};
