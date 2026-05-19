@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { User } from "../models/user.models.js"
+import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
@@ -37,18 +37,29 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with same username or email already exists")
     }
 
+
     const avatarLocalPath = req.files?.avatar[0]?.path;  // added by middleware
-    const coverImageLocalPath = req.files?.coverImage[0]?.path; // added by middleware
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path; // added by middleware
+    let coverImageLocalPath = "";
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {   // just checking for the first element is enough for us
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar is required")
     }
+
+
     // Upload avatar and coverImage to cloudinary  
     const avatarCloudinary = await uploadOnCloudinary(avatarLocalPath);
     const coverImageCloudinary = await uploadOnCloudinary(coverImageLocalPath);
 
+
     if (!avatarCloudinary) {
-        throw new ApiError(400, "Avatar is required")
+        throw new ApiError(401, "Something went wrong while uploading the avatar")
+    }
+    if (!coverImageCloudinary) {
+        throw new ApiError(401, "Something went wrong while uploading the cover image")
     }
 
     const newUser = await User.create({
