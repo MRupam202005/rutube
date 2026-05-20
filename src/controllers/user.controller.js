@@ -228,7 +228,108 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user?._id);  // Using the user id from the token, ? mark because there might be a case where the user is not logged in
+    const isOldPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    if (!isOldPasswordCorrect) {
+        throw new ApiError(401, "Invalid old password");
+    }
+    user.password = newPassword;
+    await user.save();
+    return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
+})
+
+// As we added the current user information is the req at the time of login and refresh using the verifyJWT middleware, we can access it here
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(new ApiResponse(200, req.user, "User fetched successfully"));
+})
+
+// route handlers for updateAccountDetails => Use different handlers for updating any file information , avatar , coverImage
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body;
+
+    const user = await User.findById(req.user?._id);  // Using the user id from the token, ? mark because there might be a case where the user is not logged in
+    if (!(fullName && email)) {
+        throw new ApiError(400, "All fields are required");
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullName: fullName,
+                email: email
+            }
+        },
+        { returnDocument: "after" }
+    ).select("-password ");
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedUser, "User account details updated successfully"));
+})
+
+// Route handler for changeProfilePicture
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.files?.avatar[0].path;  // Files are always sent as files and they are available in req because of multer middleware
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing");
+    }
+    const avatarCloudinary = await uploadOnCloudinary(avatarLocalPath);  // Upload the file to the cloud
+    if (!avatarCloudinary) {
+        return res.status(500).json(new ApiResponse(500, {}, "Failed to update user avatar"));
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatarCloudinary.url
+            }
+        },
+        { returnDocument: "after" }
+    ).select("-password ");
+    // delete old avatar => if user has already uploaded an avatar, then delete it from the cloud
+    // update in database
+    // return response  
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User avatar updated successfully"));
+})
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+    const coverImageLocalPath = req.files?.coverImage[0].path;  // Files are always sent as files and they are available in req because of multer middleware
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "Cover image file is missing");
+    }
+    const coverImageCloudinary = await uploadOnCloudinary(coverImageLocalPath);  // Upload the file to the cloud
+    if (!coverImageCloudinary) {
+        return res.status(500).json(new ApiResponse(500, {}, "Failed to update user cover image"));
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage: coverImageCloudinary.url
+            }
+        },
+        { returnDocument: "after" }
+    ).select("-password ");
+    // delete old cover image => if user has already uploaded a cover image, then delete it from the cloud
+    // update in database
+    // return response  
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User cover image updated successfully"));
+})
+
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCoverImage };
 
 
 
