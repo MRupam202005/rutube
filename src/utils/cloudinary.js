@@ -31,15 +31,18 @@ const uploadOnCloudinary = async (localFilePath) => {
 // Delete image from cloudinary
 const deleteFromCloudinary = async (fileUrl) => {
     try {
-        if (!fileUrl) return null;                               // check if the file url is valid
-        // delete the file from cloudinary
-        const response = await cloudinary.uploader.destroy(fileUrl);
-        // file has been deleted successfully
-        console.log("File deleted successfully from cloudinary");    // printing the url of the deleted file
-        return response;        // returning the response
+        if (!fileUrl) return null;
+
+        // Extract public_id from the Cloudinary URL
+        // Example URL: http://res.cloudinary.com/username/image/upload/v1234567/public_id.jpg
+        const publicId = fileUrl.split('/').pop().split('.')[0];
+
+        const response = await cloudinary.uploader.destroy(publicId);
+        console.log("File deleted successfully from cloudinary");
+        return response;
     } catch (error) {
         console.error("Cloudinary delete failed:", error);
-        return null;        // returning null if the delete fails
+        return null;
     }
 }
 

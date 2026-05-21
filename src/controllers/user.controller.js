@@ -1,8 +1,9 @@
+import mongoose from "mongoose"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"
 import jwt from "jsonwebtoken"
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -155,8 +156,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         3. Check if the user exists: Using email or username
         4. If user not found: throw error
         5. Compare the password
-        6. Generate the access token and refresh token 
-        7. send the response in the form of 🍪cookies (only 200 code) don't send the password and refresh token 
+        6. send the response in the form of 🍪cookies (only 200 code) don't send the password and refresh token 
     */
 
     // Update the refresh token in the database to null
@@ -269,7 +269,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, updatedUser, "User account details updated successfully"));
 })
-
 
 // Route handler for changeProfilePicture
 const updateUserAvatar = asyncHandler(async (req, res) => {
@@ -437,8 +436,6 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, user[0]?.watchHistory, "Watch history fetched successfully"));
 })
-
-
 
 export {
     registerUser,
