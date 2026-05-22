@@ -26,8 +26,10 @@ app.use(cookieParser());
 
 
 // routes import
-import userRouter from "./routes/user.routes.js";   // as in user.router.js it is "export default" so whatever name you want to chose you can do
+import userRouter from "./routes/user.routes.js";
+import videoRouter from "./routes/video.routes.js";
 
 // routes declaration
-app.use("/api/v1/users",userRouter);   // app.use because it is modular, 
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/videos", videoRouter);
 export {app};
