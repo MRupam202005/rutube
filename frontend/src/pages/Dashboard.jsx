@@ -1,24 +1,34 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Eye, Users, ThumbsUp, Edit2, Trash2, BarChart2 } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('Content');
+  const userData = useSelector((state) => state.auth.userData);
 
   return (
     <div className="dashboard-container">
       {/* Channel Header */}
       <div className="channel-header">
         <div className="cover-image-container">
-          <img src="https://picsum.photos/1600/400" alt="Cover" className="cover-image" />
+          <img 
+            src={userData?.coverImage || "https://picsum.photos/1600/400"} 
+            alt="Cover" 
+            className="cover-image" 
+          />
           <div className="cover-overlay"></div>
         </div>
         
         <div className="channel-profile">
-          <img src="https://i.pravatar.cc/150?u=channel" alt="Avatar" className="profile-avatar" />
+          <img 
+            src={userData?.avatar || "https://i.pravatar.cc/150"} 
+            alt="Avatar" 
+            className="profile-avatar" 
+          />
           <div className="profile-info">
-            <h1>Tech Noir Studio</h1>
-            <p className="profile-stats">10.5K Subscribers • 142 Videos</p>
+            <h1>{userData?.fullName || "Your Channel"}</h1>
+            <p className="profile-stats">@{userData?.username}</p>
           </div>
           <button className="btn-primary">Customize Channel</button>
         </div>

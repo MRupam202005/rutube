@@ -43,15 +43,17 @@ app.use("/api/v1/tweets", tweetRouter);
 app.use("/api/v1/playlists", playlistRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 
-// Global Error Handler Middleware
+// Global Error Handler Middleware (So that the frontend actually know which error has occurred in the backend)
 app.use((err, req, res, next) => {
+    // checking if the error is already an instance of ApiError (defined in utils/ApiError.js)
     const statusCode = err.statusCode || 500;
+    // setting the message to be sent to the frontend
     const message = err.message || "Internal Server Error";
-    
+    // sending the response to the frontend
     return res.status(statusCode).json({
-        success: false,
-        message: message,
-        errors: err.errors || []
+        success: false, // indicating that an error has occurred
+        message: message, // the error message
+        errors: err.errors || [] // including errors array if present
     });
 });
 

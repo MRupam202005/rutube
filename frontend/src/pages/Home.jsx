@@ -1,23 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
+import api from '../api/axios';
 import './Home.css';
 
 const Home = () => {
-  // Dummy data representing videos for layout purposes
-  const videos = Array.from({ length: 12 }).map((_, i) => ({
-    id: i + 1,
-    title: `Premium Video Content ${i + 1} | 4K Cinematic`,
-    thumbnail: `https://picsum.photos/seed/${i + 1}/640/360`,
-    channelName: `Tech Noir Channel ${i + 1}`,
-    channelAvatar: `https://i.pravatar.cc/150?u=${i + 1}`,
-    views: `${Math.floor(Math.random() * 900) + 100}K`,
-    timestamp: `${Math.floor(Math.random() * 11) + 1} days ago`,
-    duration: '14:20'
-  }));
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await api.get('/videos');
+        // The backend uses aggregate paginate, so videos are in data.data.docs
+        setVideos(response.data.data.docs || []);
+      } catch (error) {
+        console.error("Failed to fetch videos", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVideos();
+  }, []);
 
   return (
     <div className="home-container">
-      {/* Category Pills (Trending equivalent) */}
+      {/* Category Pills */}
       <div className="category-scroll">
         <button className="category-pill active">All</button>
         <button className="category-pill">Gaming</button>
@@ -27,25 +35,43 @@ const Home = () => {
         <button className="category-pill">Live</button>
       </div>
 
-      <div className="video-grid">
-        {videos.map(video => (
-          <Link to={`/watch/${video.id}`} key={video.id} className="video-card glass-card">
-            <div className="thumbnail-container">
-              <img src={video.thumbnail} alt={video.title} className="thumbnail" />
-              <span className="duration">{video.duration}</span>
-            </div>
-            
-            <div className="video-info">
-              <img src={video.channelAvatar} alt={video.channelName} className="channel-avatar" />
-              <div className="video-text">
-                <h3 className="video-title">{video.title}</h3>
-                <p className="channel-name">{video.channelName}</p>
-                <p className="video-meta">{video.views} views • {video.timestamp}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+          <Loader2 className="spinner" size={40} color="#2af5d1" />
+        </div>
+      ) : (
+        <div className="video-grid">
+          {videos.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No videos found.</p>
+          ) : (
+            videos.map(video => (
+              <Link to={`/watch/${video._id}`} key={video._id} className="video-card glass-card">
+                <div className="thumbnail-container">
+                  <img src={video.thumbnail} alt={video.title} className="thumbnail" />
+                  <span className="duration">
+                    {Math.floor(video.duration / 60)}:{(Math.floor(video.duration % 60)).toString().padStart(2, '0')}
+                  </span>
+                </div>
+                
+                <div className="video-info">
+                  <img 
+                    src={video.owner?.avatar || "https://i.pravatar.cc/150"} 
+                    alt={video.owner?.fullName} 
+                    className="channel-avatar" 
+                  />
+                  <div className="video-text">
+                    <h3 className="video-title">{video.title}</h3>
+                    <p className="channel-name">@{video.owner?.username || "Unknown"}</p>
+                    <p className="video-meta">
+                      {video.views} views • {new Date(video.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
