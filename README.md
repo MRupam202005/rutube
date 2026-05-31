@@ -35,7 +35,7 @@ src/
 ```
 ## 📊 Database Schema (ER Diagram)
 
-The database is designed around a scalable, relational-style NoSQL architecture. Below is the Mermaid ER diagram representing all collections and their relationships.
+The database is designed around a scalable, relational-style NoSQL architecture. Below is the Mermaid ER diagram representing all collections and their relationships with the other collections.
 
 ```mermaid
 erDiagram
