@@ -164,6 +164,59 @@ const getAllVideos = asyncHandler(async (req, res) => {
     );
 })
 
+// Get My Videos (For Dashboard - Includes Private Videos)
+const getMyVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, sortBy = "createdAt", sortType = "desc" } = req.query;
+    
+    // We already have req.user from verifyJWT
+    const pipeline = [
+        {
+            $match: {
+                owner: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $sort: {
+                [sortBy]: sortType === "asc" ? 1 : -1
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "ownerDetails",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                owner: { $first: "$ownerDetails" }
+            }
+        }
+    ];
+
+    const aggregate = Video.aggregate(pipeline);
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+    };
+
+    const videos = await Video.aggregatePaginate(aggregate, options);
+
+    return res.status(200).json(
+        new ApiResponse(200, videos, "My videos fetched successfully")
+    );
+});
+
 // Get Video By Id
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;   // params are like /api/v1/videos/:videoId (url parameters)
@@ -348,4 +401,4 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     );
 })
 
-export { publishVideo, getAllVideos, getVideoById, updateVideo, deleteVideo, togglePublishStatus };
+export { publishVideo, getAllVideos, getMyVideos, getVideoById, updateVideo, deleteVideo, togglePublishStatus };

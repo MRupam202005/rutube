@@ -3,6 +3,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
     getAllVideos,
+    getMyVideos,
     publishVideo,
     getVideoById,
     updateVideo,
@@ -24,6 +25,9 @@ router
         ]),
         publishVideo
     );
+
+// Dashboard route (Protected, includes private videos)
+router.route("/dashboard/my-videos").get(verifyJWT, getMyVideos);
 
 // Parameterized routes (/api/v1/videos/:videoId)
 router

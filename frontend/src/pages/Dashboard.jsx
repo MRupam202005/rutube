@@ -34,7 +34,7 @@ const Dashboard = () => {
     if (!userData?._id) return;
     try {
       setLoadingVideos(true);
-      const res = await api.get(`/videos?userId=${userData._id}`);
+      const res = await api.get(`/videos/dashboard/my-videos`);
       setMyVideos(res.data.data.docs || []);
     } catch (error) {
       console.error(error);
