@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
 import morgan from "morgan";
 import logger from "./utils/logger.js";
 
@@ -41,10 +40,6 @@ app.use(express.json({limit: "16kb"}));
 // configuring express to accept URL-encoded data in requests
 app.use(express.urlencoded({extended: true}));
 
-// 3. Mongo Sanitize: Sanitizes user-supplied data to prevent MongoDB Operator Injection
-// It removes any keys starting with '$' or '.' from req.body, req.query, or req.params
-app.use(mongoSanitize());
-
 // configuring express to serve static files
 app.use(express.static("public"));
 
@@ -73,6 +68,8 @@ app.use("/api/v1/subscriptions", subscriptionRouter);
 
 // Global Error Handler Middleware (So that the frontend actually know which error has occurred in the backend)
 app.use((err, req, res, next) => {
+    logger.error(`[Global Error Handler] ${err.stack || err.message || err}`);
+    
     // checking if the error is already an instance of ApiError (defined in utils/ApiError.js)
     const statusCode = err.statusCode || 500;
     // setting the message to be sent to the frontend
