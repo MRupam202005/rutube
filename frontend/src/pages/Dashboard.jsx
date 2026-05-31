@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Eye, Users, ThumbsUp, Edit2, Trash2, BarChart2, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Users, ThumbsUp, Edit2, Trash2, BarChart2, Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import VideoUploadModal from '../components/VideoUploadModal';
 import VideoEditModal from '../components/VideoEditModal';
@@ -111,6 +111,16 @@ const Dashboard = () => {
     }
   };
 
+  const handleTogglePublish = async (videoId, currentStatus) => {
+    try {
+      await api.patch(`/videos/toggle/publish/${videoId}`);
+      toast.success(currentStatus ? "Video is now Private" : "Video is now Public");
+      fetchMyVideos();
+    } catch (error) {
+      toast.error("Failed to toggle publish status");
+    }
+  };
+
   return (
     <div className="dashboard-container">
       {/* Dashboard Header */}
@@ -213,8 +223,14 @@ const Dashboard = () => {
                     </div>
                     
                     <div className="item-actions">
+                      <button 
+                        className="icon-btn" 
+                        title={video.isPublished ? "Make Private" : "Make Public"} 
+                        onClick={() => handleTogglePublish(video._id, video.isPublished)}
+                      >
+                        {video.isPublished ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
                       <button className="icon-btn" title="Edit" onClick={() => { setVideoToEdit(video); setIsEditModalOpen(true); }}><Edit2 size={18} /></button>
-                      <button className="icon-btn" title="Analytics"><BarChart2 size={18} /></button>
                       <button className="icon-btn danger" title="Delete" onClick={() => handleDelete(video._id)}>
                         <Trash2 size={18} />
                       </button>
