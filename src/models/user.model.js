@@ -42,7 +42,13 @@ const userSchema = new Schema(
         },
         refreshToken: {                  //it is used for generating new access token 
             type: String,
-        }
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false
+        },
+        verifyToken: String,
+        verifyTokenExpiry: Date,
     },
     { timestamps: true }
 )

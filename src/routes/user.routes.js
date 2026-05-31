@@ -11,7 +11,8 @@ import {
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory,
-    addVideoToHistory
+    addVideoToHistory,
+    verifyEmail
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
@@ -28,6 +29,7 @@ router.route("/register").post(
 
 // login user  
 router.route("/login").post(loginUser);
+router.route("/verify-email").post(verifyEmail);
 
 
 //Secured routes can be added here with authentication middleware

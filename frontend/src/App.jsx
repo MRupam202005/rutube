@@ -15,6 +15,7 @@ import Channel from './pages/Channel';
 import History from './pages/History';
 import LikedVideos from './pages/LikedVideos';
 import Subscriptions from './pages/Subscriptions';
+import VerifyEmail from './pages/VerifyEmail';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -69,6 +70,7 @@ function App() {
                   <Auth />
                 </AuthLayout>
               } />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/dashboard" element={
                 <AuthLayout authentication={true}>
                   <Dashboard />

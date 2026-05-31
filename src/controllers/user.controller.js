@@ -5,6 +5,8 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js"
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"
 import jwt from "jsonwebtoken"
+import crypto from "crypto"
+import { sendEmail } from "../utils/sendEmail.js"
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -68,16 +70,21 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Upload avatar and coverImage to cloudinary  
     const avatarCloudinary = await uploadOnCloudinary(avatarLocalPath);
-    const coverImageCloudinary = await uploadOnCloudinary(coverImageLocalPath);
-
-
     if (!avatarCloudinary) {
         throw new ApiError(401, "Something went wrong while uploading the avatar")
     }
-    if (!coverImageCloudinary) {
-        throw new ApiError(401, "Something went wrong while uploading the cover image")
+
+    let coverImageCloudinary = null;
+    if (coverImageLocalPath) {
+        coverImageCloudinary = await uploadOnCloudinary(coverImageLocalPath);
+        if (!coverImageCloudinary) {
+            throw new ApiError(401, "Something went wrong while uploading the cover image")
+        }
     }
 
+    // Generate verification token
+    const verifyToken = crypto.randomBytes(20).toString('hex');
+    
     const newUser = await User.create({
         username: username.toLowerCase(),
         email: email.toLowerCase(),
@@ -85,15 +92,66 @@ const registerUser = asyncHandler(async (req, res) => {
         fullName: fullName,
         avatar: avatarCloudinary.url,
         coverImage: coverImageCloudinary?.url || "",
+        verifyToken: verifyToken,
+        verifyTokenExpiry: Date.now() + 3600000 // 1 hour
     })
 
-    const createdUser = await User.findById(newUser._id).select("-password -refreshToken");
+    const createdUser = await User.findById(newUser._id).select("-password -refreshToken -verifyToken -verifyTokenExpiry");
 
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user")
     }
+
+    // Send verification email
+    const verificationUrl = `http://localhost:5173/verify-email?token=${verifyToken}`;
+    const message = `
+        <h1>Email Verification</h1>
+        <p>Please go to this link to verify your email address:</p>
+        <a href=${verificationUrl} clicktracking=off>${verificationUrl}</a>
+    `;
+
+    try {
+        await sendEmail({
+            to: newUser.email,
+            subject: 'RuTube - Verify your email address',
+            html: message
+        });
+    } catch (error) {
+        newUser.verifyToken = undefined;
+        newUser.verifyTokenExpiry = undefined;
+        await newUser.save({ validateBeforeSave: false });
+        throw new ApiError(500, 'There was an error sending the verification email. Please try again later.');
+    }
+
     // send the response (only 201 code)
-    return res.status(201).json(new ApiResponse(200, createdUser, "User registered successfully"));
+    return res.status(201).json(new ApiResponse(200, createdUser, "User registered successfully. Please check your email to verify your account."));
+});
+
+const verifyEmail = asyncHandler(async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        throw new ApiError(400, "Verification token is required");
+    }
+
+    const user = await User.findOne({
+        verifyToken: token,
+        verifyTokenExpiry: { $gt: Date.now() } // Ensure token hasn't expired
+    });
+
+    if (!user) {
+        throw new ApiError(400, "Invalid or expired verification token");
+    }
+
+    user.isEmailVerified = true;
+    user.verifyToken = undefined;
+    user.verifyTokenExpiry = undefined;
+    
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Email verified successfully")
+    );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -116,8 +174,13 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ $or: [{ email }, { username }] });
     if (!user) {
-        throw new ApiError(404, "User not found");
+        throw new ApiError(404, "User does not exist")
     }
+
+    if (!user.isEmailVerified) {
+        throw new ApiError(403, "Please verify your email address before logging in")
+    }
+
     const isPasswordValid = await user.isPasswordCorrect(password);
     if (!isPasswordValid) {
         throw new ApiError(401, "Invalid password");
@@ -476,6 +539,7 @@ export {
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory,
+    verifyEmail,
     addVideoToHistory
 };
 
