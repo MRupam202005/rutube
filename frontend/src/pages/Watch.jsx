@@ -14,6 +14,7 @@ const Watch = () => {
   // Like state
   const [likesCount, setLikesCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [isVideoDisliked, setIsVideoDisliked] = useState(false);
 
   // Comments state
   const [comments, setComments] = useState([]);
@@ -69,16 +70,29 @@ const Watch = () => {
     const previousIsLiked = isLiked;
     setIsLiked(!previousIsLiked);
     setLikesCount(prev => !previousIsLiked ? prev + 1 : prev - 1);
+    
+    // If liking, remove dislike
+    if (!previousIsLiked) setIsVideoDisliked(false);
 
     try {
       const res = await api.post(`/likes/toggle/v/${id}`);
-      // Sync with actual backend response just in case
       setIsLiked(res.data.data.isLiked);
     } catch (error) {
-      // Revert if failed
       setIsLiked(previousIsLiked);
       setLikesCount(prev => previousIsLiked ? prev + 1 : prev - 1);
       toast.error("Failed to update like status");
+    }
+  };
+
+  const handleVideoDislikeToggle = () => {
+    if (!authStatus) {
+      toast.error("Sign in to dislike this video!");
+      return;
+    }
+    setIsVideoDisliked(!isVideoDisliked);
+    // If disliking, remove like
+    if (!isVideoDisliked && isLiked) {
+      handleLikeToggle();
     }
   };
 
@@ -97,6 +111,48 @@ const Watch = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCommentLikeToggle = async (commentId) => {
+    if (!authStatus) {
+      toast.error("Sign in to like a comment!");
+      return;
+    }
+
+    try {
+      const res = await api.post(`/likes/toggle/c/${commentId}`);
+      const newIsLiked = res.data.data.isLiked;
+      
+      setComments(comments.map(c => {
+        if (c._id === commentId) {
+          return {
+            ...c,
+            likesCount: newIsLiked ? (c.likesCount || 0) + 1 : Math.max(0, (c.likesCount || 1) - 1),
+            isLiked: newIsLiked
+          };
+        }
+        return c;
+      }));
+    } catch (error) {
+      toast.error("Failed to like comment");
+    }
+  };
+
+  const handleCommentDislikeToggle = (commentId) => {
+    if (!authStatus) {
+      toast.error("Sign in to dislike a comment!");
+      return;
+    }
+    setComments(comments.map(c => {
+      if (c._id === commentId) {
+        const isCurrentlyDisliked = c.isDisliked;
+        if (!isCurrentlyDisliked && c.isLiked) {
+           handleCommentLikeToggle(commentId); // Remove like if disliking
+        }
+        return { ...c, isDisliked: !isCurrentlyDisliked };
+      }
+      return c;
+    }));
   };
 
   if (loading) {
@@ -158,7 +214,13 @@ const Watch = () => {
                   <ThumbsUp size={20} fill={isLiked ? 'var(--accent-mint)' : 'none'} /> {likesCount}
                 </button>
                 <div className="divider-vertical"></div>
-                <button className="action-btn"><ThumbsDown size={20} /></button>
+                <button 
+                  className={`action-btn ${isVideoDisliked ? 'active-like' : ''}`} 
+                  onClick={handleVideoDislikeToggle}
+                  style={{ color: isVideoDisliked ? 'var(--accent-mint)' : 'inherit' }}
+                >
+                  <ThumbsDown size={20} fill={isVideoDisliked ? 'var(--accent-mint)' : 'none'} />
+                </button>
               </div>
               <button className="action-pill glass-panel action-btn"><Share2 size={20} /> Share</button>
               <button className="action-pill glass-panel action-btn"><BookmarkPlus size={20} /> Save</button>
@@ -213,9 +275,21 @@ const Watch = () => {
                     </p>
                     <p className="comment-text" style={{ marginTop: '4px' }}>{comment.content}</p>
                     <div className="comment-actions">
-                      <button><ThumbsUp size={16} /> 0</button>
-                      <button><ThumbsDown size={16} /></button>
-                      <button>Reply</button>
+                      <button 
+                        className={`action-btn ${comment.isLiked ? 'active-like' : ''}`} 
+                        onClick={() => handleCommentLikeToggle(comment._id)}
+                        style={{ color: comment.isLiked ? 'var(--accent-mint)' : 'inherit' }}
+                      >
+                        <ThumbsUp size={16} fill={comment.isLiked ? 'var(--accent-mint)' : 'none'} /> {comment.likesCount || 0}
+                      </button>
+                      <button 
+                        className={`action-btn ${comment.isDisliked ? 'active-like' : ''}`} 
+                        onClick={() => handleCommentDislikeToggle(comment._id)}
+                        style={{ color: comment.isDisliked ? 'var(--accent-mint)' : 'inherit' }}
+                      >
+                        <ThumbsDown size={16} fill={comment.isDisliked ? 'var(--accent-mint)' : 'none'} />
+                      </button>
+                      <button className="action-btn">Reply</button>
                     </div>
                   </div>
                 </div>
@@ -224,7 +298,6 @@ const Watch = () => {
           </div>
         </div>
       </div>
-
       <div className="watch-sidebar">
         <h3>Up Next</h3>
         <div className="up-next-list">

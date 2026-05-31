@@ -43,6 +43,25 @@ const getVideoComments = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "comment",
+                as: "likes"
+            }
+        },
+        {
+            $addFields: {
+                likesCount: { $size: "$likes" }
+            }
+        },
+        {
+            $project: {
+                likes: 0,
+                ownerDetails: 0
+            }
+        },
+        {
             $sort: { createdAt: -1 } // Newest comments first
         }
     ];
