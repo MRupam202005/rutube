@@ -7,21 +7,22 @@ dotenv.config({path: "./.env"});
 
 import { app } from "./app.js";
 import connectDB from "./db/index.js";
+import logger from "./utils/logger.js";
 
 
 
 connectDB()     // calling the function to connect to the database and here we are using .then() and .catch() to handle the promise returned by the connectDB function (asynchronous task)
 .then(() => {
     app.on("error", (error) => {
-        console.error("Error:", error);
+        logger.error(`Error: ${error}`);
         throw error;
     }); 
     app.listen(process.env.PORT || 8000, () => {
-        console.log(`Server is running on port ${process.env.PORT}`);
+        logger.info(`Server is running on port ${process.env.PORT || 8000}`);
     });
 })
 .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
+    logger.error(`Error connecting to MongoDB: ${err}`);
     process.exit(1);
 } )
 

@@ -1,6 +1,7 @@
 import dns from "dns";
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";
+import logger from "../utils/logger.js";
 
 const connectDB = async ()=>{
     try {
@@ -10,9 +11,9 @@ const connectDB = async ()=>{
         }
 
         const connectionInstance = await mongoose.connect(process.env.MONGODB_URI, { dbName: DB_NAME, family: 4 });
-        console.log(`🌱 [MongoDB connected] : [HOST: ${connectionInstance.connection.host}] : [DB: ${connectionInstance.connection.name}]`);    
+        logger.info(`🌱 [MongoDB connected] : [HOST: ${connectionInstance.connection.host}] : [DB: ${connectionInstance.connection.name}]`);    
     } catch (error) {
-        console.error("❌ [Error connecting to MongoDB] ", error);
+        logger.error(`❌ [Error connecting to MongoDB] ${error}`);
         process.exit(1);
     }
 }
