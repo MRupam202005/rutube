@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Search, UserCircle, Bell, Menu, LogOut } from 'lucide-react';
@@ -12,6 +12,16 @@ const Navbar = ({ toggleSidebar }) => {
   const userData = useSelector((state) => state.auth.userData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate(`/`);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -35,10 +45,15 @@ const Navbar = ({ toggleSidebar }) => {
       </div>
 
       <div className="navbar-center">
-        <div className="search-bar">
-          <input type="text" placeholder="Search for premium content..." />
-          <button className="search-btn"><Search size={20} /></button>
-        </div>
+        <form className="search-bar" onSubmit={handleSearch}>
+          <input 
+            type="text" 
+            placeholder="Search for premium content..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button type="submit" className="search-btn"><Search size={20} /></button>
+        </form>
       </div>
 
       <div className="navbar-right">

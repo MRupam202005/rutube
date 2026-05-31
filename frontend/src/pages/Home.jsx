@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import './Home.css';
@@ -12,15 +12,26 @@ const Home = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const loaderRef = useRef(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
 
-  // Fetch videos when page changes
+  // Fetch videos when page or search query changes
   useEffect(() => {
+    let isSubscribed = true;
+
     const fetchVideos = async () => {
       if (page === 1) setLoading(true);
       else setLoadingMore(true);
 
       try {
-        const response = await api.get(`/videos?page=${page}&limit=12`);
+        let url = `/videos?page=${page}&limit=12`;
+        if (searchQuery) {
+          url += `&query=${encodeURIComponent(searchQuery)}`;
+        }
+        
+        const response = await api.get(url);
+        if (!isSubscribed) return;
+
         const newVideos = response.data.data.docs || [];
         
         if (page === 1) {
@@ -31,14 +42,24 @@ const Home = () => {
         
         setHasMore(response.data.data.hasNextPage);
       } catch (error) {
-        console.error("Failed to fetch videos", error);
+        if (isSubscribed) console.error("Failed to fetch videos", error);
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (isSubscribed) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     };
     fetchVideos();
-  }, [page]);
+
+    return () => { isSubscribed = false; };
+  }, [page, searchQuery]);
+
+  // Reset page when search query changes
+  useEffect(() => {
+    setPage(1);
+    setVideos([]); // Clear videos immediately while loading new ones
+  }, [searchQuery]);
 
   // Intersection Observer for infinite scrolling
   useEffect(() => {
