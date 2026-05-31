@@ -12,15 +12,12 @@ import {
 
 const router = Router();
 
-// Apply verifyJWT middleware to all routes in this file
-// Every route below this line requires the user to be logged in!
-router.use(verifyJWT);
-
 // Root routes (/api/v1/videos/)
 router
     .route("/")
-    .get(getAllVideos)
+    .get(getAllVideos) // Publicly accessible
     .post(
+        verifyJWT, // Protected
         upload.fields([ 
             { name: "videoFile", maxCount: 1 },
             { name: "thumbnail", maxCount: 1 },
@@ -31,11 +28,11 @@ router
 // Parameterized routes (/api/v1/videos/:videoId)
 router
     .route("/:videoId")
-    .get(getVideoById)
-    .delete(deleteVideo)
-    .patch(upload.single("thumbnail"), updateVideo); // Expects the field name "thumbnail" if updating the image
+    .get(getVideoById) // Publicly accessible
+    .delete(verifyJWT, deleteVideo) // Protected
+    .patch(verifyJWT, upload.single("thumbnail"), updateVideo); // Protected
 
 // Toggle Publish Status Route (/api/v1/videos/toggle/publish/:videoId)
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+router.route("/toggle/publish/:videoId").patch(verifyJWT, togglePublishStatus); // Protected
 
 export default router;

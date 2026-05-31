@@ -44,7 +44,7 @@ const Navbar = ({ toggleSidebar }) => {
       <div className="navbar-right">
         {authStatus ? (
           <>
-            <Link to="/upload" className="btn-ghost">Upload</Link>
+            <Link to="/dashboard" className="btn-ghost">Upload</Link>
             <button className="icon-btn"><Bell size={24} /></button>
             <Link to="/dashboard" className="profile-link">
               <img 
