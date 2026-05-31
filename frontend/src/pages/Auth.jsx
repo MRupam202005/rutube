@@ -1,9 +1,83 @@
+// Step 4 : Auth Page (Login and Register) & API Integration
+
 import React, { useState } from 'react';
-import { Play, Users, TrendingUp } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Play, Users, TrendingUp, Loader2 } from 'lucide-react';
+import api from '../api/axios';
+import { login } from '../store/authSlice';
 import './Auth.css';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Form State
+  const [formData, setFormData] = useState({
+    username: '',
+    fullName: '',
+    email: '',
+    password: '',
+  });
+  const [avatarFile, setAvatarFile] = useState(null);
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setAvatarFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      if (isLoginMode) {
+        // --- LOGIN FLOW ---
+        const response = await api.post('/users/login', {
+          email: formData.email,
+          password: formData.password
+        });
+        
+        toast.success(`Welcome back, ${response.data.data.user.fullName}!`);
+        dispatch(login({ userData: response.data.data.user }));
+        navigate('/dashboard'); // redirect to dashboard
+
+      } else {
+        // --- REGISTER FLOW (Requires FormData for File Upload) ---
+        if (!avatarFile) {
+          toast.error("Avatar image is required!");
+          setIsLoading(false);
+          return;
+        }
+
+        const submitData = new FormData();
+        submitData.append('username', formData.username);
+        submitData.append('fullName', formData.fullName);
+        submitData.append('email', formData.email);
+        submitData.append('password', formData.password);
+        submitData.append('avatar', avatarFile);
+
+        const response = await api.post('/users/register', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        toast.success("Account created successfully! Please sign in.");
+        setIsLoginMode(true); // switch to login mode so they can log in
+      }
+    } catch (error) {
+      console.error(error);
+      const message = error.response?.data?.message || "An error occurred";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -42,45 +116,58 @@ const Auth = () => {
 
       <div className="auth-form-section">
         <div className="auth-form-wrapper glass-panel">
-          <h2>{isLogin ? 'Sign In' : 'Create Account'}</h2>
+          <h2>{isLoginMode ? 'Sign In' : 'Create Account'}</h2>
           <p className="auth-subtext">
-            {isLogin ? 'Welcome back! Please enter your details.' : 'Join the revolution of video streaming.'}
+            {isLoginMode ? 'Welcome back! Please enter your details.' : 'Join the revolution of video streaming.'}
           </p>
 
-          <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
-            {!isLogin && (
-              <div className="input-group">
-                <label>Full Name</label>
-                <input type="text" placeholder="Enter your name" />
-              </div>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {!isLoginMode && (
+              <>
+                <div className="input-group">
+                  <label>Username</label>
+                  <input type="text" name="username" value={formData.username} onChange={handleInputChange} placeholder="johndoe" required />
+                </div>
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="John Doe" required />
+                </div>
+              </>
             )}
             
             <div className="input-group">
               <label>Email</label>
-              <input type="email" placeholder="Enter your email" />
+              <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="hello@example.com" required />
             </div>
             
             <div className="input-group">
               <label>Password</label>
-              <input type="password" placeholder="••••••••" />
+              <input type="password" name="password" value={formData.password} onChange={handleInputChange} placeholder="••••••••" required />
             </div>
 
-            {isLogin && (
+            {!isLoginMode && (
+              <div className="input-group">
+                <label>Profile Avatar</label>
+                <input type="file" name="avatar" onChange={handleFileChange} accept="image/*" required />
+              </div>
+            )}
+
+            {isLoginMode && (
               <div className="forgot-password">
                 <a href="#">Forgot password?</a>
               </div>
             )}
 
-            <button type="submit" className="btn-primary auth-submit">
-              {isLogin ? 'Sign In' : 'Sign Up'}
+            <button type="submit" className="btn-primary auth-submit" disabled={isLoading}>
+              {isLoading ? <Loader2 className="spinner" size={20} /> : (isLoginMode ? 'Sign In' : 'Sign Up')}
             </button>
           </form>
 
           <div className="auth-toggle">
             <p>
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <span onClick={() => setIsLogin(!isLogin)} className="toggle-link">
-                {isLogin ? 'Sign up' : 'Log in'}
+              {isLoginMode ? "Don't have an account? " : "Already have an account? "}
+              <span onClick={() => setIsLoginMode(!isLoginMode)} className="toggle-link">
+                {isLoginMode ? 'Sign up' : 'Log in'}
               </span>
             </p>
           </div>
