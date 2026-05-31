@@ -9,16 +9,14 @@ import {
 
 const router = Router();
 
-router.use(verifyJWT); // Secure all routes
-
 // GET comments of a video, POST new comment
 router.route("/:videoId")
-    .get(getVideoComments)   // fetching all comments of a specific video
-    .post(addComment);       // creating a new comment for a specific video
+    .get(getVideoComments)             // Publicly accessible
+    .post(verifyJWT, addComment);      // Requires login
 
 // DELETE a comment, UPDATE a comment
 router.route("/c/:commentId")
-    .delete(deleteComment)   // deleting a specific comment
-    .patch(updateComment);   // updating a specific comment
+    .delete(verifyJWT, deleteComment)  // Requires login
+    .patch(verifyJWT, updateComment);  // Requires login
 
 export default router;

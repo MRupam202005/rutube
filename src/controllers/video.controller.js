@@ -196,8 +196,22 @@ const getVideoById = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "video",
+                as: "likes"
+            }
+        },
+        {
             $addFields: {
-                owner: { $first: "$ownerDetails" }
+                owner: { $first: "$ownerDetails" },
+                likesCount: { $size: "$likes" }
+            }
+        },
+        {
+            $project: {
+                likes: 0 // Remove the likes array from the final output to save bandwidth
             }
         }
     ]);
