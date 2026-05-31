@@ -10,11 +10,9 @@ const Sidebar = ({ isOpen }) => {
 
   const menuItems = [
     { icon: Home, label: 'Home', path: '/' },
-    { icon: Compass, label: 'Explore', path: '/explore' },
     { icon: PlaySquare, label: 'Subscriptions', path: '/subscriptions' },
     { divider: true },
     { icon: History, label: 'History', path: '/history' },
-    { icon: Clock, label: 'Watch Later', path: '/watch-later' },
     { icon: ThumbsUp, label: 'Liked Videos', path: '/liked' },
   ];
 

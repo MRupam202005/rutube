@@ -6,14 +6,14 @@
   margin: 0 auto;
 }
 
-.channel-header {
+.dashboard-header {
   position: relative;
   border-radius: 20px;
   overflow: hidden;
   background: var(--bg-surface-grey);
 }
 
-.cover-image-container {
+.dashboard-cover-container {
   height: 240px;
   width: 100%;
   position: relative;
@@ -34,7 +34,7 @@
   background: linear-gradient(to bottom, transparent, rgba(5, 5, 5, 0.8));
 }
 
-.channel-profile {
+.dashboard-profile {
   display: flex;
   align-items: flex-end;
   gap: 24px;
@@ -212,7 +212,7 @@
 }
 
 @media (max-width: 768px) {
-  .channel-profile {
+  .dashboard-profile {
     flex-direction: column;
     align-items: center;
     text-align: center;

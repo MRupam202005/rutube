@@ -46,9 +46,9 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Channel Header */}
-      <div className="channel-header">
-        <div className="cover-image-container">
+      {/* Dashboard Header */}
+      <div className="dashboard-header">
+        <div className="dashboard-cover-container">
           <img 
             src={userData?.coverImage || "https://picsum.photos/1600/400"} 
             alt="Cover" 
@@ -57,7 +57,7 @@ const Dashboard = () => {
           <div className="cover-overlay"></div>
         </div>
         
-        <div className="channel-profile">
+        <div className="dashboard-profile">
           <img 
             src={userData?.avatar || "https://i.pravatar.cc/150"} 
             alt="Avatar" 

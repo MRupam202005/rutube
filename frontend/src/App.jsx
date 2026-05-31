@@ -12,6 +12,9 @@ import Watch from './pages/Watch';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import Channel from './pages/Channel';
+import History from './pages/History';
+import LikedVideos from './pages/LikedVideos';
+import Subscriptions from './pages/Subscriptions';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -69,6 +72,21 @@ function App() {
               <Route path="/dashboard" element={
                 <AuthLayout authentication={true}>
                   <Dashboard />
+                </AuthLayout>
+              } />
+              <Route path="/history" element={
+                <AuthLayout authentication={true}>
+                  <History />
+                </AuthLayout>
+              } />
+              <Route path="/liked" element={
+                <AuthLayout authentication={true}>
+                  <LikedVideos />
+                </AuthLayout>
+              } />
+              <Route path="/subscriptions" element={
+                <AuthLayout authentication={true}>
+                  <Subscriptions />
                 </AuthLayout>
               } />
             </Routes>
