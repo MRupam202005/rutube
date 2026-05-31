@@ -335,7 +335,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 // Route handler for changeProfilePicture
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req.files?.avatar[0].path;  // Files are always sent as files and they are available in req because of multer middleware
+    const avatarLocalPath = req.file?.path;  // Files are always sent as files and they are available in req.file because of upload.single() multer middleware
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is missing");
@@ -361,7 +361,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    const coverImageLocalPath = req.files?.coverImage[0].path;  // Files are always sent as files and they are available in req because of multer middleware
+    const coverImageLocalPath = req.file?.path;  // Files are always sent as files and they are available in req.file because of upload.single() multer middleware
 
     if (!coverImageLocalPath) {
         throw new ApiError(400, "Cover image file is missing");

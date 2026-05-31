@@ -23,13 +23,18 @@ const Auth = () => {
     password: '',
   });
   const [avatarFile, setAvatarFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setAvatarFile(e.target.files[0]);
+    if (e.target.name === 'avatar') {
+      setAvatarFile(e.target.files[0]);
+    } else if (e.target.name === 'coverImage') {
+      setCoverFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -62,6 +67,9 @@ const Auth = () => {
         submitData.append('email', formData.email);
         submitData.append('password', formData.password);
         submitData.append('avatar', avatarFile);
+        if (coverFile) {
+          submitData.append('coverImage', coverFile);
+        }
 
         const response = await api.post('/users/register', submitData, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -146,10 +154,16 @@ const Auth = () => {
             </div>
 
             {!isLoginMode && (
-              <div className="input-group">
-                <label>Profile Avatar</label>
-                <input type="file" name="avatar" onChange={handleFileChange} accept="image/*" required />
-              </div>
+              <>
+                <div className="input-group">
+                  <label>Profile Avatar <span style={{color: '#ff4b4b'}}>*</span></label>
+                  <input type="file" name="avatar" onChange={handleFileChange} accept="image/*" required />
+                </div>
+                <div className="input-group">
+                  <label>Cover Image <span style={{color: 'var(--text-muted)'}}>(Optional)</span></label>
+                  <input type="file" name="coverImage" onChange={handleFileChange} accept="image/*" />
+                </div>
+              </>
             )}
 
             {isLoginMode && (
