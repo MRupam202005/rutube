@@ -1,0 +1,244 @@
+.watch-container {
+  display: flex;
+  gap: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.watch-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.watch-sidebar {
+  width: 400px;
+  flex-shrink: 0;
+}
+
+.video-player-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.player-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.watch-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.watch-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.channel-info-full {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.channel-avatar-large {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.channel-text h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.channel-text p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.subscribe-btn {
+  margin-left: 12px;
+}
+
+.video-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-pill {
+  display: flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.divider-vertical {
+  width: 1px;
+  height: 24px;
+  background: var(--border-muted);
+}
+
+.video-description {
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.views-date {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.show-more {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.comments-section h3 {
+  margin-bottom: 24px;
+}
+
+.comment-input-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.comment-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.comment-input:focus {
+  border-bottom-color: var(--text-primary);
+}
+
+.comment {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.comment-header {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.comment-time {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.comment-actions button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.comment-actions button:hover {
+  color: var(--text-primary);
+}
+
+.up-next-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.up-next-card {
+  display: flex;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.up-next-thumb {
+  width: 168px;
+  height: 94px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.up-next-info h4 {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.up-next-info p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+  .watch-container {
+    flex-direction: column;
+  }
+  .watch-sidebar {
+    width: 100%;
+  }
+}

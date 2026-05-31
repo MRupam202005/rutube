@@ -1,0 +1,133 @@
+.navbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left, .navbar-right, .navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-center {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.logo-mark {
+  background: var(--accent-mint);
+  color: var(--bg-deep-obsidian);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.search-bar {
+  display: flex;
+  width: 100%;
+  background: var(--bg-deep-obsidian);
+  border: 1px solid var(--border-muted);
+  border-radius: 9999px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent-mint-dim);
+  box-shadow: 0 0 0 1px var(--accent-mint-dim);
+}
+
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  outline: none;
+  font-size: 16px;
+}
+
+.search-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-left: 1px solid var(--border-muted);
+  color: var(--text-secondary);
+  padding: 0 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.profile-link {
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive adjustments */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .navbar-center {
+    margin: 0;
+    flex: 1;
+  }
+  .search-bar input {
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 100%;
+  }
+  .search-btn {
+    padding: 0 12px;
+  }
+  .logo-text, .btn-ghost, .navbar-right .icon-btn {
+    display: none; /* Hide non-essential items to make room for search */
+  }
+  .navbar-left, .navbar-right {
+    gap: 4px;
+  }
+}
