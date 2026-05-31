@@ -437,6 +437,33 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user[0]?.watchHistory, "Watch history fetched successfully"));
 })
 
+const addVideoToHistory = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!videoId) {
+        throw new ApiError(400, "Video ID is required");
+    }
+
+    // Add video to watchHistory array, avoid duplicates by using $addToSet
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $addToSet: {
+                watchHistory: videoId
+            }
+        },
+        { new: true }
+    );
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Video added to watch history"));
+})
+
 export {
     registerUser,
     loginUser,
@@ -448,7 +475,8 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    addVideoToHistory
 };
 
 

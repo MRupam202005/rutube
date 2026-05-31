@@ -59,6 +59,11 @@ const Watch = () => {
           setChannelProfile(profileRes.data.data);
         }
 
+        // Add to watch history if logged in
+        if (authStatus) {
+          api.post(`/users/watch-history/${id}`).catch(err => console.error("Failed to log watch history", err));
+        }
+
         fetchComments(); // Fetch comments after video loads
       } catch (error) {
         console.error("Failed to fetch video", error);
