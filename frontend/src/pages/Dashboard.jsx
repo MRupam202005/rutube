@@ -20,6 +20,13 @@ const Dashboard = () => {
   const [myVideos, setMyVideos] = useState([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   
+  const [stats, setStats] = useState({
+    totalVideos: 0,
+    totalViews: 0,
+    totalSubscribers: 0,
+    totalLikes: 0
+  });
+  
   const [channelProfile, setChannelProfile] = useState(null);
   
   const [settingsForm, setSettingsForm] = useState({ fullName: '', email: '' });
@@ -48,16 +55,19 @@ const Dashboard = () => {
     if (userData) {
       setSettingsForm({ fullName: userData.fullName || '', email: userData.email || '' });
       
-      const fetchProfile = async () => {
+      const fetchProfileAndStats = async () => {
         try {
           const res = await api.get(`/users/channel/${userData.username}`);
           setChannelProfile(res.data.data);
+          
+          const statsRes = await api.get(`/dashboard/stats`);
+          setStats(statsRes.data.data);
         } catch (error) {
-          console.error("Failed to load channel profile", error);
+          console.error("Failed to load channel profile or stats", error);
         }
       };
       
-      fetchProfile();
+      fetchProfileAndStats();
       fetchMyVideos();
     }
   }, [userData]);
@@ -148,27 +158,27 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Analytics Overview Cards (Dummy Data for now) */}
+      {/* Analytics Overview Cards */}
       <div className="analytics-overview">
         <div className="metric-card glass-card">
           <div className="metric-icon-wrapper"><Eye size={24} /></div>
           <div className="metric-text">
             <p className="metric-label">Total Views</p>
-            <h2 className="metric-value">{myVideos.reduce((sum, v) => sum + v.views, 0)}</h2>
+            <h2 className="metric-value">{stats.totalViews}</h2>
           </div>
         </div>
         <div className="metric-card glass-card">
           <div className="metric-icon-wrapper"><Users size={24} /></div>
           <div className="metric-text">
             <p className="metric-label">Total Subscribers</p>
-            <h2 className="metric-value">{channelProfile?.subscribersCount || 0}</h2>
+            <h2 className="metric-value">{stats.totalSubscribers}</h2>
           </div>
         </div>
         <div className="metric-card glass-card">
           <div className="metric-icon-wrapper"><ThumbsUp size={24} /></div>
           <div className="metric-text">
             <p className="metric-label">Total Likes</p>
-            <h2 className="metric-value">-</h2>
+            <h2 className="metric-value">{stats.totalLikes}</h2>
           </div>
         </div>
       </div>
