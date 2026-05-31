@@ -38,6 +38,6 @@ router.route("/update-account").patch(verifyJWT, updateAccountDetails);
 router.route("/update-avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvatar);
 router.route("/update-cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
-router.route("/channel/:username").get(verifyJWT, getUserChannelProfile);
+router.route("/channel/:username").get(getUserChannelProfile); // Public route
 
 export default router;

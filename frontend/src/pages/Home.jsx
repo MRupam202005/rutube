@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import './Home.css';
@@ -7,6 +7,7 @@ import './Home.css';
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -54,14 +55,31 @@ const Home = () => {
                 </div>
                 
                 <div className="video-info">
-                  <img 
-                    src={video.owner?.avatar || "https://i.pravatar.cc/150"} 
-                    alt={video.owner?.fullName} 
-                    className="channel-avatar" 
-                  />
+                  <div 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(`/channel/${video.owner?.username}`);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <img 
+                      src={video.owner?.avatar || "https://i.pravatar.cc/150"} 
+                      alt={video.owner?.fullName} 
+                      className="channel-avatar" 
+                    />
+                  </div>
                   <div className="video-text">
                     <h3 className="video-title">{video.title}</h3>
-                    <p className="channel-name">@{video.owner?.username || "Unknown"}</p>
+                    <p 
+                      className="channel-name" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(`/channel/${video.owner?.username}`);
+                      }}
+                      style={{ cursor: 'pointer', display: 'inline-block' }}
+                    >
+                      @{video.owner?.username || "Unknown"}
+                    </p>
                     <p className="video-meta">
                       {video.views} views • {new Date(video.createdAt).toLocaleDateString()}
                     </p>

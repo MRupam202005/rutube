@@ -11,6 +11,7 @@ import Home from './pages/Home';
 import Watch from './pages/Watch';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import Channel from './pages/Channel';
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -59,6 +60,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/watch/:id" element={<Watch />} />
+              <Route path="/channel/:username" element={<Channel />} />
               <Route path="/auth" element={
                 <AuthLayout authentication={false}>
                   <Auth />

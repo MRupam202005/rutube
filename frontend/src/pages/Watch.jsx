@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ThumbsUp, ThumbsDown, Share2, BookmarkPlus, Loader2, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -20,6 +20,9 @@ const Watch = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [channelProfile, setChannelProfile] = useState(null);
+  const [subscribing, setSubscribing] = useState(false);
   
   const authStatus = useSelector(state => state.auth.status);
   const userData = useSelector(state => state.auth.userData);
@@ -48,6 +51,12 @@ const Watch = () => {
           if (likedVideos.some(l => l.videoDetails?._id === id)) {
             setIsLiked(true);
           }
+        }
+
+        // Fetch channel profile to get subscribers count and subscription status
+        if (videoData.owner?.username) {
+          const profileRes = await api.get(`/users/channel/${videoData.owner.username}`);
+          setChannelProfile(profileRes.data.data);
         }
 
         fetchComments(); // Fetch comments after video loads
@@ -93,6 +102,33 @@ const Watch = () => {
     // If disliking, remove like
     if (!isVideoDisliked && isLiked) {
       handleLikeToggle();
+    }
+  };
+
+  const handleSubscribeToggle = async () => {
+    if (!authStatus) {
+      toast.error("Sign in to subscribe!");
+      return;
+    }
+    if (userData?._id === channelProfile?._id) {
+      toast.error("You cannot subscribe to your own channel");
+      return;
+    }
+    try {
+      setSubscribing(true);
+      const res = await api.post(`/subscriptions/c/${channelProfile._id}`);
+      const isSubbed = res.data.data.subscribed;
+      
+      setChannelProfile(prev => ({
+        ...prev,
+        isSubscribed: isSubbed,
+        subscribersCount: prev.isSubscribed === isSubbed ? prev.subscribersCount : (isSubbed ? prev.subscribersCount + 1 : prev.subscribersCount - 1)
+      }));
+      toast.success(isSubbed ? "Subscribed!" : "Unsubscribed");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Subscription failed");
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -192,16 +228,27 @@ const Watch = () => {
           
           <div className="watch-actions-row">
             <div className="channel-info-full">
-              <img 
-                src={video.owner?.avatar || "https://i.pravatar.cc/150"} 
-                alt={video.owner?.fullName} 
-                className="channel-avatar-large" 
-              />
+              <Link to={`/channel/${video.owner?.username}`}>
+                <img 
+                  src={video.owner?.avatar || "https://i.pravatar.cc/150"} 
+                  alt={video.owner?.fullName} 
+                  className="channel-avatar-large" 
+                />
+              </Link>
               <div className="channel-text">
-                <h3>{video.owner?.fullName || "Unknown Channel"}</h3>
-                <p>@{video.owner?.username}</p>
+                <Link to={`/channel/${video.owner?.username}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <h3>{video.owner?.fullName || "Unknown Channel"}</h3>
+                </Link>
+                <p>@{video.owner?.username} {channelProfile ? `• ${channelProfile.subscribersCount} subscribers` : ''}</p>
               </div>
-              <button className="btn-primary subscribe-btn">Subscribe</button>
+              <button 
+                className={`btn-primary subscribe-btn ${channelProfile?.isSubscribed ? 'subscribed' : ''}`}
+                onClick={handleSubscribeToggle}
+                disabled={subscribing || !channelProfile}
+                style={channelProfile?.isSubscribed ? { background: 'rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: 'none' } : {}}
+              >
+                {channelProfile?.isSubscribed ? 'Subscribed' : 'Subscribe'}
+              </button>
             </div>
 
             <div className="video-action-buttons">
@@ -263,14 +310,18 @@ const Watch = () => {
             <div className="comments-list" style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {comments.map((comment) => (
                 <div className="comment" key={comment._id}>
-                  <img 
-                    src={comment.owner?.avatar || "https://i.pravatar.cc/150"} 
-                    alt={comment.owner?.username} 
-                    className="channel-avatar" 
-                  />
+                  <Link to={`/channel/${comment.owner?.username}`}>
+                    <img 
+                      src={comment.owner?.avatar || "https://i.pravatar.cc/150"} 
+                      alt={comment.owner?.username} 
+                      className="channel-avatar" 
+                    />
+                  </Link>
                   <div className="comment-content">
                     <p className="comment-header">
-                      @{comment.owner?.username} 
+                      <Link to={`/channel/${comment.owner?.username}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        @{comment.owner?.username}
+                      </Link>
                       <span className="comment-time">{new Date(comment.createdAt).toLocaleDateString()}</span>
                     </p>
                     <p className="comment-text" style={{ marginTop: '4px' }}>{comment.content}</p>
