@@ -137,7 +137,8 @@ dist
 .webpack/
 
 # Optional stylelint cache
-
+production_roadmap.md
+project_roadmap.md 
 # SvelteKit build / generate output
 .svelte-kit
 
