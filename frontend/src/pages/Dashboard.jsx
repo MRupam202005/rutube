@@ -79,8 +79,8 @@ const Dashboard = () => {
     try {
       let updatedUser = userData;
       
-      if (settingsForm.fullName !== userData.fullName || settingsForm.email !== userData.email) {
-        const res = await api.patch('/users/update-account', settingsForm);
+      if (settingsForm.fullName !== userData.fullName) {
+        const res = await api.patch('/users/update-account', { fullName: settingsForm.fullName });
         updatedUser = res.data.data;
       }
       
@@ -283,8 +283,8 @@ const Dashboard = () => {
               <input type="text" value={settingsForm.fullName} onChange={e => setSettingsForm({...settingsForm, fullName: e.target.value})} style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-muted)', padding: '12px', borderRadius: '8px', color: 'var(--text-primary)' }} />
             </div>
             <div className="form-group">
-              <label>Email</label>
-              <input type="email" value={settingsForm.email} onChange={e => setSettingsForm({...settingsForm, email: e.target.value})} style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-muted)', padding: '12px', borderRadius: '8px', color: 'var(--text-primary)' }} />
+              <label>Email <span style={{fontSize: '12px', color: 'var(--text-muted)'}}>(Cannot be changed)</span></label>
+              <input type="email" value={settingsForm.email} disabled style={{ background: 'var(--bg-panel)', border: '1px solid var(--border-muted)', padding: '12px', borderRadius: '8px', color: 'var(--text-muted)', cursor: 'not-allowed' }} />
             </div>
             <div className="form-group">
               <label>Update Avatar</label>

@@ -207,7 +207,7 @@ const loginUser = asyncHandler(async (req, res) => {
                 refreshToken
             },
             "User logged in successfully"
-        ))
+        ))  
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -311,18 +311,17 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 // route handlers for updateAccountDetails => Use different handlers for updating any file information , avatar , coverImage
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    const { fullName, email } = req.body;
+    const { fullName } = req.body;
 
     const user = await User.findById(req.user?._id);  // Using the user id from the token, ? mark because there might be a case where the user is not logged in
-    if (!(fullName && email)) {
-        throw new ApiError(400, "All fields are required");
+    if (!fullName) {
+        throw new ApiError(400, "Full name is required");
     }
     const updatedUser = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
-                fullName: fullName,
-                email: email
+                fullName: fullName
             }
         },
         { returnDocument: "after" }
